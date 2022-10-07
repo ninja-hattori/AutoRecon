@@ -15,3 +15,9 @@ After the scans it will also go for a directory enumeration.
 ```shell
 git clone https://github.com/ninja-hattori/AutoRecon.git
 ```
+```shell
+cd AutoRecon
+```
+```shell
+sudo pip install -r requirements.txt
+```
