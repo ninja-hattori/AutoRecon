@@ -1,0 +1,5 @@
+nmapthon==1.7.0
+prettytable==2.5.0
+print_color==0.4.5
+pyfiglet==0.8.post0
+requests==2.27.1
