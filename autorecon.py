@@ -18,7 +18,8 @@ readline.parse_and_bind("tab: complete")
 
 done = False
 ports=[]
-#wordlist="default.txt"
+services=[]
+serv_port={}
 
 #header for the script
 def header():
@@ -89,7 +90,7 @@ def quick_sc():
             sys.exit("All 1000 ports are closed")
         else:
             for port in scanner.scanned_ports(host, proto):
-                ports.append(port)
+                # ports.append(port)
                 state, reason = scanner.port_state(host, proto, port)
                 print("Port ", end="")
                 print("{}".format(port), format="bold", end="")
@@ -97,6 +98,7 @@ def quick_sc():
 
 #Service and Version Scan
 def norm_sc():
+    global ports
     scanner = nm.NmapScanner(host, arguments='-sV -sC -Pn')
     scanner.run()
     print("\r", end="")
@@ -110,6 +112,8 @@ def norm_sc():
             print("\tState:{0:<9}Reason:{1}".format(state, reason))
             # Get service object
             service = scanner.service(host, proto, port)
+            services.append(service.name)
+            serv_port[port]=service.name
             if service is not None:
                 print("Service name: ", end="")
                 print("{}".format(service.name), format="bold", background="red")
@@ -125,15 +129,16 @@ def norm_sc():
                 # You could also know if 'ssh-keys' script was launched and print the output
                 if 'ssh-keys' in service:
                     print("{}".format(service['ssh-keys']))
+    ports = [i for i in serv_port if serv_port[i]=="http"]
 
 #Directory Scanning function
-def dir_sc(ip, wordlist):
+def dir_sc(ip, port, wordlist):
     result = pyfiglet.figlet_format("\r"+"-"*10+"VALID URL"+"-"*10, font = "wideterm")
     print(result, format="bold")
     #looping through each word in wordlist
     for word in wordlist:
         #making the url
-        url=f"http://{ip}/{word}"
+        url=f"http://{ip}:{port}/{word}"
 
         #making a try block to avoid failure of program
         try:
@@ -192,8 +197,10 @@ if __name__ == "__main__":
                 done=True
                 t2.join()
                 print("\n")
-                if(80 in ports):
-                    char=str(input("Seems like the host has port 80 open. Do you want run a directory scan?(Y/N): "))
+                if("http" in services):
+                    print("Seems like the host has http service running on port(s) ",end="")
+                    print(*[i for i in ports], sep=", ", end=".")
+                    char=str(input("\nDo you want run a directory scan?(Y/N): "))
                     if (char=="y" or char=="Y"):
                         char1=str(input("Do you want to provide a wordlist?(Y/N): "))
                         if (char1=="y" or char1=="Y"):
@@ -201,16 +208,17 @@ if __name__ == "__main__":
                         else:
                             wordlist="default.txt"
                         print("\n")
-                        print(f"Testing URL: http://{host}/\n")
-                        print(f"Wordlist used: {wordlist}\n")
-                        #reading the wordlist
-                        with open(wordlist,"r") as file:
-                                name=file.read()
-                                words=name.splitlines()
-                                #print(type(words))
-                                length=len(words)
-                                print(f"Total words generated = {length}\n")
-                        dir_sc(host,words)
+                        for i in ports:
+                            print(f"Testing URL: http://{host}:{i}/\n")
+                            print(f"Wordlist used: {wordlist}\n")
+                            #reading the wordlist
+                            with open(wordlist,"r") as file:
+                                    name=file.read()
+                                    words=name.splitlines()
+                                    #print(type(words))
+                                    length=len(words)
+                                    print(f"Total words generated = {length}\n")
+                            dir_sc(host,i,words)
                     else:
                         print("\n")
                         result = pyfiglet.figlet_format("\r"+"-"*10+"DONE"+"-"*10, font = "wideterm")
