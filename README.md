@@ -1,3 +1,5 @@
+[![](https://forthebadge.com/images/badges/made-with-python.svg)](https://www.python.org)
+
 # AUTORECON
 
 ## A SIMPLE CTF SCANNER
