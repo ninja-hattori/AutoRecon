@@ -9,6 +9,7 @@ import re
 import requests
 import pyfiglet
 import readline
+import os
 
 #for tab autocomplete
 readline.set_completer_delims('\t\n=')
@@ -157,65 +158,69 @@ def dir_sc(ip, wordlist):
 
 #main function
 if __name__ == "__main__":
-    header()
-    print("\n\n")
-    regex="^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
-    try:
-        host=str(input("Enter IP: "))
-        print("\n")
-        if re.match(regex, host):
-            result = pyfiglet.figlet_format("\r"+"-"*10+"BASIC IP SCAN"+"-"*10, font = "wideterm")
-            print(result, format="bold")
-            t = threading.Thread(target=animate)
-            t.start()
-            base_sc()
-            done = True
-            t.join()
+    if os.geteuid()==0:
+        header()
+        print("\n\n")
+        regex="^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
+        try:
+            host=str(input("Enter IP: "))
             print("\n")
-            done=False
-            result = pyfiglet.figlet_format("\r"+"-"*10+"QUICK PORT SCAN"+"-"*10, font = "wideterm")
-            print(result, format="bold")
-            t1 = threading.Thread(target=animate)
-            t1.start()
-            quick_sc()
-            done = True
-            t1.join()
-            print("\n")
-            done=False
-            result = pyfiglet.figlet_format("\r"+"-"*10+"NORMAL SCAN"+"-"*10, font = "wideterm")
-            print(result, format="bold")
-            t2 = threading.Thread(target=animate)
-            t2.start()
-            norm_sc()
-            done=True
-            t2.join()
-            print("\n")
-            if(80 in ports):
-                char=str(input("Seems like the host has port 80 open. Do you want run a directory scan?(Y/N): "))
-                if (char=="y" or char=="Y"):
-                    char1=str(input("Do you want to provide a wordlist?(Y/N): "))
-                    if (char1=="y" or char1=="Y"):
-                        wordlist=str(input("Enter full path of wordlist: "))
+            if re.match(regex, host):
+                result = pyfiglet.figlet_format("\r"+"-"*10+"BASIC IP SCAN"+"-"*10, font = "wideterm")
+                print(result, format="bold")
+                t = threading.Thread(target=animate)
+                t.start()
+                base_sc()
+                done = True
+                t.join()
+                print("\n")
+                done=False
+                result = pyfiglet.figlet_format("\r"+"-"*10+"QUICK PORT SCAN"+"-"*10, font = "wideterm")
+                print(result, format="bold")
+                t1 = threading.Thread(target=animate)
+                t1.start()
+                quick_sc()
+                done = True
+                t1.join()
+                print("\n")
+                done=False
+                result = pyfiglet.figlet_format("\r"+"-"*10+"NORMAL SCAN"+"-"*10, font = "wideterm")
+                print(result, format="bold")
+                t2 = threading.Thread(target=animate)
+                t2.start()
+                norm_sc()
+                done=True
+                t2.join()
+                print("\n")
+                if(80 in ports):
+                    char=str(input("Seems like the host has port 80 open. Do you want run a directory scan?(Y/N): "))
+                    if (char=="y" or char=="Y"):
+                        char1=str(input("Do you want to provide a wordlist?(Y/N): "))
+                        if (char1=="y" or char1=="Y"):
+                            wordlist=str(input("Enter full path of wordlist: "))
+                        else:
+                            wordlist="default.txt"
+                        print("\n")
+                        print(f"Testing URL: http://{host}/\n")
+                        print(f"Wordlist used: {wordlist}\n")
+                        #reading the wordlist
+                        with open(wordlist,"r") as file:
+                                name=file.read()
+                                words=name.splitlines()
+                                #print(type(words))
+                                length=len(words)
+                                print(f"Total words generated = {length}\n")
+                        dir_sc(host,words)
                     else:
-                        wordlist="default.txt"
-                    print("\n")
-                    print(f"Testing URL: http://{host}/\n")
-                    print(f"Wordlist used: {wordlist}\n")
-                    #reading the wordlist
-                    with open(wordlist,"r") as file:
-                            name=file.read()
-                            words=name.splitlines()
-                            #print(type(words))
-                            length=len(words)
-                            print(f"Total words generated = {length}\n")
-                    dir_sc(host,words)
-                else:
-                    print("\n")
-                    result = pyfiglet.figlet_format("\r"+"-"*10+"DONE"+"-"*10, font = "wideterm")
-                    print(result, format="bold")
-                    sys.exit()
-        else:
-            print("PLEASE ENTER A VALID IP!!", color="red", format="blink")
-    except KeyboardInterrupt:
-        done=True
-        print("\r!!KEYBOARD INTERRUPT!!")
+                        print("\n")
+                        result = pyfiglet.figlet_format("\r"+"-"*10+"DONE"+"-"*10, font = "wideterm")
+                        print(result, format="bold")
+                        sys.exit()
+            else:
+                print("PLEASE ENTER A VALID IP!!", color="red", format="blink")
+        except KeyboardInterrupt:
+            done=True
+            print("\r!!KEYBOARD INTERRUPT!!")
+    else:
+        print("This script must be run as root!", color="red", format="blink")
+        sys.exit()
