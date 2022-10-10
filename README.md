@@ -36,4 +36,4 @@ sudo python3 autorecon.py
 
 You can use your custom wordlist or go with the default wordlist.
 
-![image](https://user-images.githubusercontent.com/112231923/194797039-db6d5280-6c5a-457c-aebd-db1c48353cd3.png)
+![image](https://user-images.githubusercontent.com/112231923/194838650-42ed4270-11b3-4444-8b37-99901ed0d55f.png)
